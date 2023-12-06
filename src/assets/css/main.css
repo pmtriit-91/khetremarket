@@ -1282,6 +1282,7 @@ mép trên của block QR, thì khi rê chuột sẽ làm biến mất block qr
     background-repeat: no-repeat;
     background-size: contain;
     background-position: top center;
+    background-image: url('../img/thoitrang1.jpeg');
 }
 
 .card-kiot-content {
