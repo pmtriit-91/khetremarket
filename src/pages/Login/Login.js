@@ -2,9 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { Row, Form, Button, Input } from 'antd';
 import { MdEmail, MdLock } from 'react-icons/md';
-import '../../assets/styles/login.scss';
-import { requestLogin } from '../../utils/api/request';
-import { login } from '../../utils/api/apiList';
+import './style.scss'
 
 function Login() {
 	const [errMess, setErrMess] = useState(null)
