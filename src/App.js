@@ -1,10 +1,64 @@
+import { useEffect, useState } from 'react'
+import baseUrl, { getAllCategory, getKiotFromIDCategory } from './utils/api/apiList'
+import { FcPhone } from "react-icons/fc";
+import { MdFacebook } from "react-icons/md";
+import { AiOutlineShoppingCart } from "react-icons/ai";
+import axios from 'axios'
+import images from './assets/images'
 import './assets/css/base-grid-resposive.css'
 import './assets/css/base.css'
 import './assets/css/main.css'
 import './assets/css/responsive.css'
-import images from './assets/images'
 
 function App() {
+    const [dataCategory, setDataCategory] = useState(null)
+    const [activeCategoryItem, setActiveCategoryItem] = useState(null)
+    const [dataKiotFromIdCategory, setDataKiotFromIdCategory] = useState(null)
+
+    const handleItemClick = (elm, index) => {
+        setActiveCategoryItem(index)
+        fetchDataKiot(elm._id)
+    }
+
+    useEffect(() => {
+        axios.post(baseUrl + getAllCategory, {}, {
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+            .then(res => {
+                if (res.data.message === "success") {
+                    setDataCategory(res.data.data)
+                    fetchDataKiot(res.data.data[0]._id)
+                }
+            })
+            .catch(err => console.log(err))
+    }, [])
+
+    useEffect(() => {
+        if (dataCategory && activeCategoryItem === null && dataCategory.length > 0) {
+            setActiveCategoryItem(0)
+
+            // fetchDataKiot(dataCategory[0]._id)
+        }
+    }, [dataCategory, activeCategoryItem])
+
+    const fetchDataKiot = (idCategory) => {
+        const idDanhMuc = { 'idDanhMuc': idCategory }
+        axios.post(baseUrl + getKiotFromIDCategory, idDanhMuc, {
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+            .then(res => {
+                if (res.status === 200) {
+                    console.log(res.data.data);
+                    setDataKiotFromIdCategory(res.data.data)
+                }
+            })
+            .catch(err => console.log(err))
+    }
+
     return (
         <div className="app">
             <header className="header">
@@ -34,158 +88,109 @@ function App() {
                                 <h3 className="category__heading">
                                     <i className="category__heading-icon fa-solid fa-list"></i> Danh mục
                                 </h3>
-                                <ul className="category-list"></ul>
+                                <ul className="category-list">
+                                    {dataCategory && dataCategory.map((elm, index) => {
+                                        return (
+                                            <li
+                                                key={index}
+                                                className={`category-item category-item__link ${activeCategoryItem === index ? 'category-item--active' : ''}`}
+                                                onClick={() => handleItemClick(elm, index)}
+                                            >
+                                                {elm.name}
+                                            </li>
+                                        )
+                                    })}
+                                </ul>
                             </nav>
                         </div>
 
                         <div className="col l-10 m-12 c-12">
                             <nav className="mobile-category">
                                 <ul className="mobile-category__list">
-                                    <li className="mobile-category__item">
-                                        <a href="#" className="mobile-category__link">
-                                            <span className="mobile-category__name">Váy & set đầm</span>
-                                        </a>
-                                    </li>
-                                    <li className="mobile-category__item">
-                                        <a href="#" className="mobile-category__link">
-                                            <span className="mobile-category__name">Thời trang nữ & cuộc sống thời 5.0</span>
-                                        </a>
-                                    </li>
-                                    <li className="mobile-category__item">
-                                        <a href="#" className="mobile-category__link">
-                                            <span className="mobile-category__name">Trang sức</span>
-                                        </a>
-                                    </li>
-                                    <li className="mobile-category__item">
-                                        <a href="#" className="mobile-category__link">
-                                            <span className="mobile-category__name">Mỹ phẩm</span>
-                                        </a>
-                                    </li>
-                                    <li className="mobile-category__item">
-                                        <a href="#" className="mobile-category__link">
-                                            <span className="mobile-category__name">Thời trang nam</span>
-                                        </a>
-                                    </li>
-                                    <li className="mobile-category__item">
-                                        <a href="#" className="mobile-category__link">
-                                            <span className="mobile-category__name">Giày</span>
-                                        </a>
-                                    </li>
-                                    <li className="mobile-category__item">
-                                        <a href="#" className="mobile-category__link">
-                                            <span className="mobile-category__name">Trang sức</span>
-                                        </a>
-                                    </li>
-                                    <li className="mobile-category__item">
-                                        <a href="#" className="mobile-category__link">
-                                            <span className="mobile-category__name">Set váy</span>
-                                        </a>
-                                    </li>
-                                    <li className="mobile-category__item">
-                                        <a href="#" className="mobile-category__link">
-                                            <span className="mobile-category__name">Công nghệ</span>
-                                        </a>
-                                    </li>
-                                    <li className="mobile-category__item">
-                                        <a href="#" className="mobile-category__link">
-                                            <span className="mobile-category__name">Mỹ phẩm</span>
-                                        </a>
-                                    </li>
-                                    <li className="mobile-category__item">
-                                        <a href="#" className="mobile-category__link">
-                                            <span className="mobile-category__name">Thời trang nữ</span>
-                                        </a>
-                                    </li>
-                                    <li className="mobile-category__item">
-                                        <a href="#" className="mobile-category__link">
-                                            <span className="mobile-category__name">Hàng lưu niệm</span>
-                                        </a>
-                                    </li>
-                                    <li className="mobile-category__item">
-                                        <a href="#" className="mobile-category__link">
-                                            <span className="mobile-category__name">Thời trang thể thao</span>
-                                        </a>
-                                    </li>
-                                    <li className="mobile-category__item">
-                                        <a href="#" className="mobile-category__link">
-                                            <span className="mobile-category__name">Giày nam</span>
-                                        </a>
-                                    </li>
-                                    <li className="mobile-category__item">
-                                        <a href="#" className="mobile-category__link">
-                                            <span className="mobile-category__name">Áo phông</span>
-                                        </a>
-                                    </li>
+                                    {dataCategory && dataCategory.map((elm, index) => {
+                                        return (
+                                            <li key={index} className="mobile-category__item" onClick={() => handleItemClick(elm, index)}>
+                                                <span className="mobile-category__name">{elm.name}</span>
+                                            </li>
+                                        )
+                                    })}
                                 </ul>
                             </nav>
 
                             <div className="container-kiot">
                                 <div className="row sm-gutter wrap-card">
-                                    <div className="col l-2-4 m-4 c-6 wrap-kiot">
-                                        <div className="card-kiot">
-                                            <div className="card-kiot__img">
-                                                <img className='card-kiot__img-link' src={images.anh1} alt='avartar' />
-                                            </div>
-                                            <div className="card-kiot-content">
-                                                <h3 className="card-kiot__name">Kiot: Bà
-                                                    Bưởi - chuyên bán hàng Lào
-                                                    xuất khẩu
-                                                </h3>
-                                                <div className="card-kiot__sale-plus">
-                                                    <div className="card-kiot__sale-plus-stamp">
-                                                        <span className="card-kiot__sale-plus-stamp-price--enable">
-                                                            <svg className="card-kiot__sale-plus-stamp-svg1 _2DRZW _2xFcL"
-                                                                viewBox="-0.5 -0.5 4 16">
-                                                                <path
-                                                                    d="M4 0h-3q-1 0 -1 1a1.2 1.5 0 0 1 0 3v0.333a1.2 1.5 0 0 1 0 3v0.333a1.2 1.5 0 0 1 0 3v0.333a1.2 1.5 0 0 1 0 3q0 1 1 1h3"
-                                                                    strokeWidth="1" transform="" stroke="currentColor"
-                                                                    fill="#fff"></path>
-                                                            </svg>
-                                                            Giảm đ20k
-                                                            <svg className="card-kiot__sale-plus-stamp-svg2 _2DRZW _2xFcL"
-                                                                viewBox="-0.5 -0.5 4 16">
-                                                                <path
-                                                                    d="M4 0h-3q-1 0 -1 1a1.2 1.5 0 0 1 0 3v0.333a1.2 1.5 0 0 1 0 3v0.333a1.2 1.5 0 0 1 0 3v0.333a1.2 1.5 0 0 1 0 3q0 1 1 1h3"
-                                                                    strokeWidth="1"
-                                                                    transform="rotate(180) translate(-3 -15)"
-                                                                    stroke="currentColor" fill="#fff"></path>
-                                                            </svg>
-                                                        </span>
+                                    {dataKiotFromIdCategory ?
+                                        dataKiotFromIdCategory.map((elm, index) => {
+
+                                            const categoryItems = elm.category.map((category, i) => (
+                                                <div key={i} className={`card-kiot__category-li card-kiot__category-li-${i + 1}`}>
+                                                    {category.name}
+                                                </div>
+                                            ))
+
+                                            return (
+                                                <div key={index} className="col l-2-4 m-4 c-6 wrap-kiot">
+                                                    <div className="card-kiot">
+                                                        <div className="card-kiot__img">
+                                                            <img className='card-kiot__img-link' src={images.anh1} alt='avartar' />
+                                                        </div>
+                                                        <div className="card-kiot-content">
+                                                            <h3 className="card-kiot__name">Kiot: <span>{elm.name && elm.name}</span> - chuyên bán hàng Lào
+                                                                xuất khẩu
+                                                            </h3>
+                                                            <div className="card-kiot__sale-plus">
+                                                                <div className="card-kiot__sale-plus-stamp">
+                                                                    <span className="card-kiot__sale-plus-stamp-price--enable">
+                                                                        <svg className="card-kiot__sale-plus-stamp-svg1 _2DRZW _2xFcL"
+                                                                            viewBox="-0.5 -0.5 4 16">
+                                                                            <path
+                                                                                d="M4 0h-3q-1 0 -1 1a1.2 1.5 0 0 1 0 3v0.333a1.2 1.5 0 0 1 0 3v0.333a1.2 1.5 0 0 1 0 3v0.333a1.2 1.5 0 0 1 0 3q0 1 1 1h3"
+                                                                                strokeWidth="1" transform="" stroke="currentColor"
+                                                                                fill="#fff"></path>
+                                                                        </svg>
+                                                                        Giảm đ20k
+                                                                        <svg className="card-kiot__sale-plus-stamp-svg2 _2DRZW _2xFcL"
+                                                                            viewBox="-0.5 -0.5 4 16">
+                                                                            <path
+                                                                                d="M4 0h-3q-1 0 -1 1a1.2 1.5 0 0 1 0 3v0.333a1.2 1.5 0 0 1 0 3v0.333a1.2 1.5 0 0 1 0 3v0.333a1.2 1.5 0 0 1 0 3q0 1 1 1h3"
+                                                                                strokeWidth="1"
+                                                                                transform="rotate(180) translate(-3 -15)"
+                                                                                stroke="currentColor" fill="#fff"></path>
+                                                                        </svg>
+                                                                    </span>
+                                                                </div>
+                                                                <div className="card-kiot__sale-plus-trend--enable">Mua Kèm Deal
+                                                                    Sốc</div>
+                                                            </div>
+                                                            <div className="card-kiot__category">
+                                                                <span className="card-kiot__category-sub">Sản phẩm: </span>
+                                                                {categoryItems}
+                                                            </div>
+                                                            <div className="card-kiot__phone">
+                                                                <FcPhone style={{ marginRight: 5 }} /><span>{elm.phone}</span>
+                                                            </div>
+
+                                                            <div className="card-kiot__social">
+                                                                <MdFacebook style={{ color: '#0866ff' }} /> <a href="#" className="card-kiot__social-link">{elm.facebook ? elm.facebook : ''}</a>
+                                                            </div>
+                                                        </div>
+                                                        <div className="card-kiot__sale-wrap">
+                                                            <div className="card-kiot__favourite">
+                                                                <i className="fa-solid fa-check"></i>
+                                                                <span>Yêu thích</span>
+                                                            </div>
+                                                            <div className="card-kiot__sale-off">
+                                                                <span className="card-kiot__sale-off-percent">10%</span>
+                                                                <span className="card-kiot__sale-off-label">GIẢM</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div className="card-kiot__sale-plus-trend--enable">Mua Kèm Deal
-                                                        Sốc</div>
                                                 </div>
-                                                <div className="card-kiot__category">
-                                                    <span className="card-kiot__category-sub">Danh mục: </span>
-                                                    <span className="card-kiot__category-li card-kiot__category-li-1">Dép
-                                                        lào</span>
-                                                    <span className="card-kiot__category-li card-kiot__category-li-2">Thuốc
-                                                        lá</span>
-                                                    <span className="card-kiot__category-li card-kiot__category-li-3">Điếu
-                                                        cày</span>
-                                                </div>
-                                                <div className="card-kiot__phone">
-                                                    <span>Tel: 0938.789.789</span>
-                                                </div>
-
-                                                <div className="card-kiot__social">
-                                                    <a href="#" className="card-kiot__social-link">Facebook:
-                                                        babuoi5roi.fb</a>
-                                                </div>
-                                            </div>
-                                            <div className="card-kiot__sale-wrap">
-                                                <div className="card-kiot__favourite">
-                                                    <i className="fa-solid fa-check"></i>
-                                                    <span>Yêu thích</span>
-                                                </div>
-                                                <div className="card-kiot__sale-off">
-                                                    <span className="card-kiot__sale-off-percent">10%</span>
-                                                    <span className="card-kiot__sale-off-label">GIẢM</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
+                                            )
+                                        })
+                                        :
+                                        <></>
+                                    }
                                 </div>
                             </div>
                         </div>

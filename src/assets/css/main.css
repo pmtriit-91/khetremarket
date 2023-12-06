@@ -1075,18 +1075,19 @@ mép trên của block QR, thì khi rê chuột sẽ làm biến mất block qr
 .category-item {
     list-style: none;
     padding: 8px 10px 8px 12px;
+    cursor: pointer;
 }
 
-.category-item--active .category-item__link {
-    color: var(--primary-color);
+.category-item--active {
+    color: var(--primary-color) !important;
 }
 
-.category-item--active .category-item__link::before {
+.category-item--active::before {
     content: "";
     position: absolute;
     top: 50%;
-    left: -8px;
-    border: 4px solid;
+    left: 0px;
+    border: 5px solid;
     border-color: transparent transparent transparent var(--primary-color);
     transform: translateY(calc(-50% - 1px));
 }
@@ -1129,21 +1130,7 @@ mép trên của block QR, thì khi rê chuột sẽ làm biến mất block qr
 .mobile-category__item {
     flex-shrink: 0;
     margin-right: 10px;
-}
 
-.mobile-category__item:nth-of-type(3n + 1) .mobile-category__link {
-    background-color: #87AFD8;
-}
-
-.mobile-category__item:nth-of-type(3n + 2) .mobile-category__link {
-    background-color: #76C9DB;
-}
-
-.mobile-category__item:nth-of-type(3n + 3) .mobile-category__link {
-    background-color: #88CF81;
-}
-
-.mobile-category__link {
     --line-height: 1.25em;
     display: block;
     text-decoration: none;
@@ -1159,6 +1146,19 @@ mép trên của block QR, thì khi rê chuột sẽ làm biến mất block qr
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
+    cursor: pointer;
+}
+
+.mobile-category__item:nth-of-type(3n + 1) {
+    background-color: #87AFD8;
+}
+
+.mobile-category__item:nth-of-type(3n + 2) {
+    background-color: #76C9DB;
+}
+
+.mobile-category__item:nth-of-type(3n + 3) {
+    background-color: #88CF81;
 }
 
 .mobile-category__name {
@@ -1401,7 +1401,7 @@ mép trên của block QR, thì khi rê chuột sẽ làm biến mất block qr
 }
 
 .card-kiot__category-li {
-    padding: 0 5px;
+    padding: 5px 5px;
     color: white;
 }
 
@@ -1447,12 +1447,21 @@ mép trên của block QR, thì khi rê chuột sẽ làm biến mất block qr
 
 /* phone */
 .card-kiot__phone {
+    display: flex;
+    align-items: center;
     padding: 6px 0;
+}
+
+
+.card-kiot__social {
+    display: flex;
+    align-items: center;
 }
 
 .card-kiot__social-link {
     font-size: 12px;
     text-decoration: none;
+    margin-left: 5px;
 }
 
 
