@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'
-import { Row, Form, Button, Input } from 'antd';
+import { Row, Form, Button, Input, Layout } from 'antd';
 import { MdEmail, MdLock } from 'react-icons/md';
 import './style.scss'
+
+const { Content } = Layout;
 
 function Login() {
 	const [errMess, setErrMess] = useState(null)
@@ -51,49 +53,53 @@ function Login() {
 	// }
 
 	return (
-		<div className="login-page layout bg-green">
-			<Row justify="center" className="row-form row-login">
-				<div className='col-form col-login'>
-					<div className='div-form-title'>
-						<p className='font-24 text-center text-gray800 mb-6'>Login</p>
-					</div>
-					<div>
-						{errMess ? <div style={{ color: 'red' }}>Email/password is incorrect</div> : <></>}
-						<Form
-							name="login"
-							// onFinish={onFinish}
-							form={form}
-						>
-							<Form.Item
-								name="username"
-								rules={[{ required: true, message: 'Enter your email plz!' }]}
-							>
-								<Input placeholder='Email' prefix={<MdEmail size={20} />} />
-							</Form.Item>
-							<Form.Item
-								name="password"
-								rules={[{ required: true, message: 'Enter your password plz!' }]}
-							>
-								<Input.Password placeholder='Mật khẩu' prefix={<MdLock size={20} />} />
-							</Form.Item>
-							<Form.Item
-								name="loginresult"
-							>
-								<Button
-									block
-									type="primary"
-									htmlType="submit"
-									className="form-btn"
-								// onClick={handleSubmit}
+		<Layout className="login-layout">
+			<Content style={{ height: '100%' }}>
+				<div className="login-page layout bg-green">
+					<Row justify="center" className="row-form row-login">
+						<div className='col-form col-login'>
+							<div className='div-form-title'>
+								<p className='font-24 text-center text-gray800 mb-6'>Login</p>
+							</div>
+							<div>
+								{errMess ? <div style={{ color: 'red' }}>Email/password is incorrect</div> : <></>}
+								<Form
+									name="login"
+									// onFinish={onFinish}
+									form={form}
 								>
-									LOGIN
-								</Button>
-							</Form.Item>
-						</Form>
-					</div>
+									<Form.Item
+										name="username"
+										rules={[{ required: true, message: 'Enter your email plz!' }]}
+									>
+										<Input placeholder='Email' prefix={<MdEmail size={20} />} />
+									</Form.Item>
+									<Form.Item
+										name="password"
+										rules={[{ required: true, message: 'Enter your password plz!' }]}
+									>
+										<Input.Password placeholder='Mật khẩu' prefix={<MdLock size={20} />} />
+									</Form.Item>
+									<Form.Item
+										name="loginresult"
+									>
+										<Button
+											block
+											type="primary"
+											htmlType="submit"
+											className="form-btn"
+										// onClick={handleSubmit}
+										>
+											LOGIN
+										</Button>
+									</Form.Item>
+								</Form>
+							</div>
+						</div>
+					</Row>
 				</div>
-			</Row>
-		</div>
+			</Content>
+		</Layout>
 	)
 }
 

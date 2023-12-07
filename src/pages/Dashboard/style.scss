@@ -1,0 +1,20 @@
+.sider.ant-layout-sider {
+    position: relative;
+    min-width: 0;
+    // background: linear-gradient(0, #fe6433, #f53e2d);
+    transition: all 0.2s, background 0s;
+}
+
+.menu {
+    background-color: transparent;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+
+    .btn-logout {
+        margin-left: auto;
+        margin-right: 20px;
+    }
+}

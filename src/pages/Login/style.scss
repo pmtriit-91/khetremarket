@@ -1,3 +1,75 @@
+.login-layout {
+
+    &.ant-layout,
+    &.full-layout.ant-layout {
+        bottom: 0;
+        left: 0;
+        position: absolute !important;
+        right: 0;
+        top: 0;
+        background: transparent url("../../assets/images/bg-login.jpeg") no-repeat center center/cover;
+        background-attachment: fixed !important;
+        height: 100%;
+        width: 100%;
+        display: inline-table;
+
+        .ant-layout-sider>.ant-layout-sider-children {
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .ant-layout-content {
+            background: rgba(61, 61, 61, 0.54);
+        }
+    }
+}
+
+.login-page {
+    height: 100%;
+}
+
 .row-login {
     height: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.col-login {
+    border-radius: 5px;
+    background: #fff;
+    padding: 30px;
+}
+
+.col-form .ant-form .ant-form-item .ant-input-affix-wrapper {
+    color: #999999;
+    border-radius: 5px;
+    border: 1px solid #f3f3f3;
+    padding: 10px;
+    width: 300px;
+}
+
+.col-form .form-btn {
+    color: #fff;
+    border-radius: 5px;
+    background-color: #000000;
+    border-color: #000000;
+    height: 40px;
+    font-weight: 300;
+    font-size: 14px !important;
+}
+
+.col-form .form-btn:hover,
+.col-form .form-btn:focus,
+.col-form .form-btn:hover {
+    background-color: rgba(37, 37, 37, 0.8823529412) !important;
+    border-color: rgba(37, 37, 37, 0.8823529412);
+}
+
+.div-form-title {
+    text-align: center;
+
+    p {
+        margin: 0 0 24px 0;
+        font-size: 24px;
+    }
 }

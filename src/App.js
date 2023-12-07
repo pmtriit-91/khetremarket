@@ -1,9 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/Dashboard/Dashboard';
 import Login from './pages/Login/Login';
 import BlankPage from './pages/BlankPage/BlankPage';
-import LoginLayout from './Layout/LoginLayout';
 
 function App() {
 
@@ -11,11 +10,10 @@ function App() {
         <Router>
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/admin" element={<Dashboard />} />
+                <Route path='/admin' element={<Dashboard />} />
+
                 <Route path="*" element={<BlankPage />} />
-                <Route element={<LoginLayout />}>
-                    <Route path="/login" element={<Login />} />
-                </Route>
+                <Route path="/login" element={<Login />} />
             </Routes>
         </Router>
     )
