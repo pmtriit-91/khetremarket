@@ -15,7 +15,7 @@ import { BsHouseDoor } from "react-icons/bs";
 import './style.scss'
 import images from '../../assets/images';
 import axios from 'axios';
-import baseUrl, { addCategory, deleteCategory, getAllCategory, login } from '../../utils/api/apiList';
+import baseUrl, { addCategory, deleteCategory, editCategory, getAllCategory, login } from '../../utils/api/apiList';
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography
 
@@ -119,7 +119,23 @@ const App = () => {
     }
     const save = async (key) => {
         try {
-            const row = await form.validateFields()
+            const row = await
+                form.validateFields()
+                    .then(value => {
+                        const token = localStorage.getItem('token')
+                        axios.post(baseUrl + editCategory, { name: value.name.trim(), idDanhMuc: key }, {
+                            headers: {
+                                "Content-Type": "application/json",
+                                Authorization: token,
+                            },
+                        })
+                            .then(res => {
+                                console.log(res)
+                                res.status === 200 && fetchData()
+                            })
+                            .catch(err => console.error(err))
+                    })
+                    .catch()
             const newData = [...dataCategory]
             const index = newData.findIndex((item) => key === item._id)
             if (index > -1) {
@@ -127,7 +143,7 @@ const App = () => {
                 newData.splice(index, 1, {
                     ...item,
                     ...row,
-                });
+                })
                 setDataCategory(newData)
                 setEditingKey('')
             } else {
@@ -351,4 +367,4 @@ const App = () => {
         </Layout>
     )
 }
-export default App;
+export default App
