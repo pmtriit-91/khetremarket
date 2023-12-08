@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
@@ -7,187 +7,250 @@ import {
     VideoCameraOutlined,
 } from '@ant-design/icons';
 import {
-    Layout, Menu, Button, theme,
-    Space, Table, Tag, Form, Input, Popconfirm,
+    Layout, Menu, Button, theme, Typography,
+    Table, InputNumber, Form, Input, Popconfirm, Modal, Image, Space
 } from 'antd';
+import { FaClipboardList } from "react-icons/fa";
+import { BsHouseDoor } from "react-icons/bs";
 import './style.scss'
+import images from '../../assets/images';
+import axios from 'axios';
+import baseUrl, { addCategory, deleteCategory, getAllCategory, login } from '../../utils/api/apiList';
 const { Header, Sider, Content } = Layout;
-
-const EditableContext = React.createContext(null);
-const EditableRow = ({ index, ...props }) => {
-    const [form] = Form.useForm();
-    return (
-        <Form form={form} component={false}>
-            <EditableContext.Provider value={form}>
-                <tr {...props} />
-            </EditableContext.Provider>
-        </Form>
-    );
-};
-const EditableCell = ({
-    title,
-    editable,
-    children,
-    dataIndex,
-    record,
-    handleSave,
-    ...restProps
-}) => {
-    const [editing, setEditing] = useState(false);
-    const inputRef = useRef(null);
-    const form = useContext(EditableContext);
-    useEffect(() => {
-        if (editing) {
-            inputRef.current.focus();
-        }
-    }, [editing]);
-    const toggleEdit = () => {
-        setEditing(!editing);
-        form.setFieldsValue({
-            [dataIndex]: record[dataIndex],
-        });
-    };
-    const save = async () => {
-        try {
-            const values = await form.validateFields();
-            toggleEdit();
-            handleSave({
-                ...record,
-                ...values,
-            });
-        } catch (errInfo) {
-            console.log('Save failed:', errInfo);
-        }
-    };
-    let childNode = children;
-    if (editable) {
-        childNode = editing ? (
-            <Form.Item
-                style={{
-                    margin: 0,
-                }}
-                name={dataIndex}
-                rules={[
-                    {
-                        required: true,
-                        message: `${title} is required.`,
-                    },
-                ]}
-            >
-                <Input ref={inputRef} onPressEnter={save} onBlur={save} />
-            </Form.Item>
-        ) : (
-            <div
-                className="editable-cell-value-wrap"
-                style={{
-                    paddingRight: 24,
-                }}
-                onClick={toggleEdit}
-            >
-                {children}
-            </div>
-        );
-    }
-    return <td {...restProps}>{childNode}</td>;
-};
+const { Title } = Typography
 
 const App = () => {
     const [collapsed, setCollapsed] = useState(false);
     const {
         token: { colorBgContainer },
-    } = theme.useToken();
+    } = theme.useToken()
 
-    const [dataSource, setDataSource] = useState([
+    //add
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    //edit
+    const [form] = Form.useForm()
+    const [editingKey, setEditingKey] = useState('')
+
+    //fakeloggin
+    useEffect(() => {
+        const user = {
+            "email": "admin@gmail.com",
+            "password": "admin1"
+        }
+        axios.post(baseUrl + login, user, {
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+            .then(res => {
+                res.status === 200 && localStorage.setItem('token', res.data.token)
+            })
+            .catch(err => console.log(err))
+    }, [])
+
+    //table
+    const [dataCategory, setDataCategory] = useState(null)
+    const fetchData = () => {
+        const token = localStorage.getItem('token')
+        axios.post(baseUrl + getAllCategory, {}, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: token,
+            }
+        })
+            .then(res => {
+                const newData = res.data.data.map((item, index) => ({
+                    ...item,
+                    key: index.toString(),
+                }))
+                setDataCategory(newData)
+            })
+            .catch(err => console.log(err))
+    }
+    useEffect(() => {
+        fetchData()
+    }, [])
+
+    //edit
+    const EditableCell = ({
+        editing,
+        dataIndex,
+        title,
+        inputType,
+        record,
+        index,
+        children,
+        ...restProps
+    }) => {
+        const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
+        return (
+            <td {...restProps}>
+                {editing ? (
+                    <Form.Item
+                        name={dataIndex}
+                        style={{
+                            margin: 0,
+                        }}
+                        rules={[
+                            {
+                                required: true,
+                                message: `Please Input ${title}!`,
+                            },
+                        ]}
+                    >
+                        {inputNode}
+                    </Form.Item>
+                ) : (
+                    children
+                )}
+            </td>
+        )
+    }
+    const isEditing = (record) => record._id === editingKey
+    const edit = (record) => {
+        form.setFieldsValue({
+            name: '',
+            ...record,
+        })
+        setEditingKey(record._id)
+    }
+    const cancel = () => {
+        setEditingKey('')
+    }
+    const save = async (key) => {
+        try {
+            const row = await form.validateFields()
+            const newData = [...dataCategory]
+            const index = newData.findIndex((item) => key === item._id)
+            if (index > -1) {
+                const item = newData[index]
+                newData.splice(index, 1, {
+                    ...item,
+                    ...row,
+                });
+                setDataCategory(newData)
+                setEditingKey('')
+            } else {
+                newData.push(row)
+                setDataCategory(newData)
+                setEditingKey('')
+            }
+        } catch (errInfo) {
+            console.log('Validate Failed:', errInfo)
+        }
+    }
+
+    //add
+    const showModal = () => {
+        form.resetFields()
+        setIsModalOpen(true)
+    }
+    const handleOk = () => {
+        form.validateFields()
+            .then(value => {
+                const token = localStorage.getItem('token')
+                axios.post(baseUrl + addCategory, { name: value.tendanhmuc.trim() }, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: token,
+                    },
+                })
+                    .then(res => {
+                        res.status === 200 && fetchData()
+                    })
+                    .catch(err => console.error(err))
+            })
+            .catch()
+        setIsModalOpen(false)
+    }
+    const handleCancel = () => {
+        setIsModalOpen(false)
+    }
+
+    //delete
+    const handleDelete = (id) => {
+        const token = localStorage.getItem('token')
+        axios.post(baseUrl + deleteCategory, { idDanhMuc: id }, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: token,
+            }
+        })
+            .then(() => {
+                fetchData()
+            })
+            .catch(err => console.log(err))
+    }
+
+    //column
+    const columns = [
         {
-            key: '0',
-            name: 'Edward King 0',
-            age: '32',
-            address: 'London, Park Lane no. 0',
-        },
-        {
-            key: '1',
-            name: 'Edward King 1',
-            age: '32',
-            address: 'London, Park Lane no. 1',
-        },
-    ]);
-    const [count, setCount] = useState(2);
-    const handleDelete = (key) => {
-        const newData = dataSource.filter((item) => item.key !== key);
-        setDataSource(newData);
-    };
-    const defaultColumns = [
-        {
-            title: 'name',
+            title: 'Tên',
             dataIndex: 'name',
-            width: '30%',
+            width: '70%',
             editable: true,
         },
         {
-            title: 'age',
-            dataIndex: 'age',
-        },
-        {
-            title: 'address',
-            dataIndex: 'address',
-        },
-        {
-            title: 'operation',
-            dataIndex: 'operation',
-            render: (_, record) =>
-                dataSource.length >= 1 ? (
-                    <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.key)}>
-                        <a>Delete</a>
-                    </Popconfirm>
-                ) : null,
-        },
-    ];
-    const handleAdd = () => {
-        const newData = {
-            key: count,
-            name: `Edward King ${count}`,
-            age: '32',
-            address: `London, Park Lane no. ${count}`,
-        };
-        setDataSource([...dataSource, newData]);
-        setCount(count + 1);
-    };
-    const handleSave = (row) => {
-        const newData = [...dataSource];
-        const index = newData.findIndex((item) => row.key === item.key);
-        const item = newData[index];
-        newData.splice(index, 1, {
-            ...item,
-            ...row,
-        });
-        setDataSource(newData);
-    };
-    const components = {
-        body: {
-            row: EditableRow,
-            cell: EditableCell,
-        },
-    };
-    const columns = defaultColumns.map((col) => {
+            title: 'Action',
+            key: 'action',
+            render: (_, record) => {
+                const editable = isEditing(record)
+                return (
+                    <Space size="middle">
+                        {editable ? (
+                            <span>
+                                <Typography.Link
+                                    onClick={() => save(record._id)}
+                                    style={{
+                                        marginRight: 8,
+                                    }}
+                                >
+                                    Save
+                                </Typography.Link>
+                                <Button type="link" onClick={cancel}>Cancel</Button>
+                            </span>
+                        ) : (
+                            <Button type="link" disabled={editingKey !== ''} onClick={() => edit(record)}>
+                                Edit
+                            </Button>
+                        )}
+                        {editable ? <></> : <Popconfirm
+                            title="Sure to delete?"
+                            onConfirm={() => handleDelete(record._id)}
+                            okText="Yes"
+                            cancelText="No"
+                        >
+                            <Button type="text" danger>
+                                Delete
+                            </Button>
+                        </Popconfirm>}
+                    </Space>
+                )
+            },
+        }
+    ]
+    const mergedColumns = columns.map((col) => {
         if (!col.editable) {
-            return col;
+            return col
         }
         return {
             ...col,
             onCell: (record) => ({
                 record,
-                editable: col.editable,
+                inputType: col.dataIndex === 'age' ? 'number' : 'text',
                 dataIndex: col.dataIndex,
                 title: col.title,
-                handleSave,
+                editing: isEditing(record),
             }),
-        };
-    });
+        }
+    })
 
     return (
-        <Layout style={{ height: '100vh' }}>
+        <Layout style={{ minHeight: '100vh' }}>
             <Sider className='sider' trigger={null} collapsible collapsed={collapsed}>
-                <div className="demo-logo-vertical" />
+                <div className="demo-logo-vertical">
+                    <Image className='logo-image' src={images.logo} preview={false}></Image>
+                </div>
                 <Menu
                     className='menu'
                     theme="dark"
@@ -196,18 +259,18 @@ const App = () => {
                     items={[
                         {
                             key: '1',
-                            icon: <UserOutlined />,
-                            label: 'nav 1',
+                            icon: <FaClipboardList />,
+                            label: 'Danh Mục',
                         },
                         {
                             key: '2',
-                            icon: <VideoCameraOutlined />,
-                            label: 'nav 2',
+                            icon: <BsHouseDoor />,
+                            label: 'Kiot',
                         },
                         {
                             key: '3',
                             icon: <UploadOutlined />,
-                            label: 'nav 3',
+                            label: 'Notifications',
                         },
                     ]}
                 />
@@ -240,28 +303,52 @@ const App = () => {
                         background: colorBgContainer,
                     }}
                 >
-                    Content
                     <div>
-                        <Button
-                            onClick={handleAdd}
-                            type="primary"
-                            style={{
-                                marginBottom: 16,
-                            }}
-                        >
-                            Add a row
-                        </Button>
-                        <Table
-                            components={components}
-                            rowClassName={() => 'editable-row'}
-                            bordered
-                            dataSource={dataSource}
-                            columns={columns}
-                        />
+                        <div className='wraper-title'>
+                            <Title level={4} style={{ marginTop: 0 }}>Danh mục sản phẩm</Title>
+                            <Button onClick={showModal}>Thêm danh mục</Button>
+                        </div>
+                        <Form form={form} component={false}>
+                            <Table
+                                components={{
+                                    body: {
+                                        cell: EditableCell,
+                                    },
+                                }}
+                                bordered
+                                dataSource={dataCategory}
+                                columns={mergedColumns}
+                                rowClassName="editable-row"
+                                pagination={{
+                                    // onChange: cancel,
+                                    pageSize: 8,
+                                }}
+                            />
+                        </Form>
                     </div>
                 </Content>
             </Layout>
+
+            <Modal form={form} title="Thêm danh mục" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                <Form
+                    form={form}
+                    name="dynamic_form_complex"
+                    autoComplete="off"
+                    initialValues={{
+                        items: [{}],
+                    }}
+                >
+                    <Form.Item
+                        label="Tên danh mục"
+                        name="tendanhmuc"
+                        rules={[{ required: true, message: 'Vui lòng nhập tên danh mục!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                </Form>
+            </Modal>
+
         </Layout>
-    );
-};
+    )
+}
 export default App;
